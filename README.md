@@ -1,2 +1,102 @@
 # Elevation-NDVI-Zones
-This repo contains R code for generating management zones using elevation data from Natural Resource Canada and NDVI imagery from Sentinel-2 (Earth Search). All you need is a field boundary .
+This repo contains R code for generating management zones using elevation data from Natural Resource Canada and NDVI imagery from Sentinel-2 (Earth Search). All you need is a field boundary. 
+
+# HRDEM + Sentinel-2 NDVI Zoning Tool
+
+This R script:
+- Downloads NRCan HRDEM 2 m DTM for a field boundary (via STAC API)
+- Optionally finds a Sentinel-2 L2A scene near a target month and cloud threshold
+- Computes NDVI and elevation-based management zones using k-means
+- Writes contour and zone shapefiles (elevation & NDVI) to the working directory
+- Provides a 2.5D interactive extrusion map (MapLibre via `{mapgl}`)
+
+NDVI is optional: if a suitable Sentinel-2 image is not found, the script still
+runs elevation-only outputs.
+
+## Requirements
+
+- R (≥ 4.x)
+- System libraries: GDAL/PROJ/GEOS (for `{terra}` and `{sf}`)
+- R packages:
+
+```r
+install.packages(c(
+  "terra", "curl", "jsonlite", "dplyr",
+  "mapgl", "viridis", "httr", "sf"
+))
+```
+-Files-
+R/hrdem_ndvi_zones.R – main script
+data/Boundary_3DayClay.geojson – example field boundary (default)
+Outputs: shapefiles written to the working directory
+
+-How to run-
+Clone or download this repository.
+Open R or RStudio and set the working directory to the project root:
+```r
+setwd("path/to/hrdem-ndvi-zones") #path to the folder the R script is in
+source("R/hrdem_ndvi_zones.R")
+```
+By default, the script will-
+Use data/Boundary_3DayClay.geojson if it exists.
+Otherwise, prompt you with file.choose() to pick a boundary file.
+
+To change the default boundary, edit:
+```r
+choose_boundary <- function(path = "data/Boundary_3DayClay.geojson") { ... }
+```
+-Key settings-
+All the knobs are at the top of R/hrdem_ndvi_zones.R:
+```r
+palette_mode           <- "turbo"  # or "viridis"
+
+k_range                <- 2:5
+
+ndvi_median_size       <- 3L       # NDVI smoothing, must be odd
+ndvi_agg_fact          <- 2L       # NDVI aggregation factor
+
+apply_majority_filter_elev <- FALSE
+apply_majority_filter_ndvi <- TRUE
+min_mapping_unit_m         <- 30
+
+s2_cloud_max          <- 20        # max % cloud cover
+s2_months             <- c(8)      # preferred months (e.g. August)
+s2_year               <- NULL      # NULL = current year
+s2_max_month_offset   <- 3L        # search up to ±3 months
+```
+-Colour logic-
+Elevation zones: zone 1 = lowest, zone k = highest
+"viridis": dark purple → yellow
+"turbo": cool → red
+
+NDVI zones: zone 1 = lowest NDVI, zone k = highest NDVI
+"viridis": yellow → dark purple
+"turbo": red → cool
+
+-Outputs-
+The script writes (for each k in k_range):
+Elevation zones (WGS84):
+FIELDNAME_zones_elev_2m_kK_smooth_wgs84.shp
+
+NDVI zones (if NDVI available):
+FIELDNAME_zones_ndvi_aggAGG_kK_smooth_wgs84.shp
+
+Stylized contours:
+FIELDNAME_contours_2m_int0p5m_wgs84.shp (or similar)
+
+Each shapefile includes a zone field and an empty Rate field.
+
+-3D viewing-
+After sourcing the script:
+```r
+# 3D elevation zones, k = 4
+
+show_zones_3d()
+
+# 3D elevation zones, k = 3
+show_zones_3d(source = "elev", k = 3)
+
+# 3D NDVI zones (if NDVI available), k = 3
+show_zones_3d(source = "ndvi", k = 2, exaggeration = 50)
+```
+This opens an interactive MapLibre map in your R graphics device / viewer.
