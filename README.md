@@ -36,6 +36,7 @@ Open R or RStudio and set the working directory to the project root:
 ```r
 setwd("path/to/hrdem-ndvi-zones") #path to the folder the R script is in
 source("R/hrdem_ndvi_zones.R")
+res <- run_field_workflow(
 ```
 By default, the script will-
 Use data/Boundary_3DayClay.geojson if it exists.
@@ -46,7 +47,7 @@ To change the default boundary, edit:
 choose_boundary <- function(path = "data/Boundary_3DayClay.geojson") { ... }
 ```
 -Key settings-
-All the knobs are at the top of R/hrdem_ndvi_zones.R:
+All the knobs & dials are at the top of R/hrdem_ndvi_zones.R:
 ```r
 palette_mode           <- "turbo"  # or "viridis"
 
@@ -74,16 +75,11 @@ NDVI zones: zone 1 = lowest NDVI, zone k = highest NDVI
 "turbo": red → cool
 
 -Outputs-
-The script writes (for each k in k_range):
-Elevation zones (WGS84):
-FIELDNAME_zones_elev_2m_kK_smooth_wgs84.shp
-
-NDVI zones (if NDVI available):
-FIELDNAME_zones_ndvi_aggAGG_kK_smooth_wgs84.shp
-
-Stylized contours:
-FIELDNAME_contours_2m_int0p5m_wgs84.shp (or similar)
-
+The script writes (for each k in k_range) as shapefiles (WGS84):
+*Elevation-based zones
+*NDVI zones (if NDVI available) 
+*Elevation contour lines
+ 
 Each shapefile includes a zone field and an empty Rate field.
 
 -3D viewing-
