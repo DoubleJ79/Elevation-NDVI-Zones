@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Boundary_3DayClay",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -82.33238911242394, 42.828425553301877 ], [ -82.336413992039368, 42.828472627917265 ], [ -82.336049163770127, 42.837063745225045 ], [ -82.331988978193166, 42.836969595994276 ], [ -82.33238911242394, 42.828425553301877 ] ] ] } }
+]
+}
